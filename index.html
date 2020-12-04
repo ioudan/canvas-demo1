@@ -1,78 +1,158 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>画板</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-<!-- 
+    <!-- 
     之前讲过，图片下面会莫名其妙的出现一个空隙 。
     canvas是一个inline元素，可能设置宽高没有用的。类似image的东西.
-
+    canvas是一个html元素，canvas.width是html属性宽度，canvas.height是html属性高度
+    100vh/100vw 这俩属性是css的style属性，无法直接给canvas用
+    
 
 -->
-<canvas id="canvas" width="100" height="100"></canvas>
-<script>
-    //画线
-    let canvas = document.getElementById("canvas");
+    <canvas id="canvas" width="100" height="100"></canvas>
+    <script>
+        //画线
+        let canvas = document.getElementById("canvas");
 
-    // body默认不会占满屏幕，body的高度是由里面的内容的高度确定的
-    // 所以一下代码做不到全屏
-    // canvas.width = document.body.clientWidth
-    // canvas.height = document.body.clientHeight
+        // body默认不会占满屏幕，body的高度是由里面的内容的高度确定的
+        // 所以一下代码做不到全屏
+        // canvas.width = document.body.clientWidth
+        // canvas.height = document.body.clientHeight
 
-    // canvas占满全屏
-    // 让canvas的宽度变成文档的宽度，高度变成文档的高度
-    canvas.width = document.documentElement.clientWidth
-    canvas.height = document.documentElement.clientHeight
+        // canvas占满全屏
+        // 让canvas的宽度变成文档的宽度，高度变成文档的高度
+        canvas.width = document.documentElement.clientWidth
+        canvas.height = document.documentElement.clientHeight
 
-    let ctx = canvas.getContext("2d");
+        let ctx = canvas.getContext("2d");
 
-    let painting = false
+        // PC端鼠标移动事件的开关，手机用不上
+        let painting = false
 
-    // ctx.fillStyle = "rgb(200,0,0)";
-    ctx.fillStyle = "black";
-    ctx.strokeStyle = "none";
-    
-    canvas.onmousedown = ()=>{
-        painting = true
-    }
+        // 记住鼠标或触摸点最后一次的坐标
+        let last
 
-    // canvas.onclick = (e)=>{
-    canvas.onmousemove = (e)=>{
-        // console.log(e.clientX)
-        // console.log(e.clientY)
+        //填充样式
+        // ctx.fillStyle = "rgb(200,0,0)";
+        ctx.fillStyle = "black";
+        //描边样式
+        ctx.strokeStyle = "none";
+        //线宽
+        ctx.lineWidth = 8;
 
-        if(painting === true){
-            // 画矩形
-            //   让矩形生成在鼠标的中间
-            // ctx.fillRect (e.clientX - 5, e.clientY - 5, 10, 10);
+        // ctx.lineJoin = 'round'
+        ctx.lineCap = 'round'
+
+        //检测设备 是否触屏？
+        var isTouchDevice = 'ontouchstart' in document.documentElement;
+        // console.log(isTouchDevice)
+
+        let run = true
+        if (run) {
+            if (isTouchDevice === true) {
+
+                canvas.ontouchstart = (e) => {
+                    let x = e.touches[0].clientX
+                    let y = e.touches[0].clientY
+                    last = [x, y]
+                }
+
+                canvas.ontouchmove = (e) => {
+                    // console.log(e)
+                    let x = e.touches[0].clientX
+                    let y = e.touches[0].clientY
+
+                    // // console.log(x,y)
+                    // ctx.beginPath();
+                    // // X Y 半径R 弧度
+                    // ctx.arc(x, y, 10, 0, 2 * Math.PI);
+                    // ctx.stroke();
+                    // ctx.fill();
+
+                    drawLine(last[0], last[1], x, y)
+                    last = [x, y]
+                }
+
+            } else {
+
+                canvas.onmousedown = (e) => {
+                    painting = true
+
+                    last = [e.clientX, e.clientY]
+                }
+
+                // canvas.onclick = (e)=>{
+
+                // e是怎么来的？
+                // 当你鼠标移动时，触发了该方法，浏览器会调用canvas.onmousemove(事件相关信息)
+                // e的名字无所谓，可改
+                canvas.onmousemove = (e) => {
+                    // console.log(e.clientX)
+                    // console.log(e.clientY)
+
+                    if (painting === true) {
+                        // // 画矩形
+                        // //   让矩形生成在鼠标的中间
+                        // // ctx.fillRect (e.clientX - 5, e.clientY - 5, 10, 10);
+
+                        // ctx.beginPath();
+                        // // X Y 半径R 弧度
+                        // ctx.arc(e.clientX, e.clientY, 10, 0, 2 * Math.PI);
+                        // ctx.stroke();
+                        // ctx.fill();
+
+
+                        //画线
+                        drawLine(last[0], last[1], e.clientX, e.clientY)
+
+                        last = [e.clientX, e.clientY]
+                    } else {
+                        // console.log('什么都没做')
+                    }
+
+                }
+
+                canvas.onmouseup = () => {
+                    painting = false
+                }
+
+            }
+
+        }
+
+        // 画线
+        function drawLine(x1, y1, x2, y2) {
 
             ctx.beginPath();
-            // X Y 半径R 弧度
-            ctx.arc(e.clientX, e.clientY, 10, 0, 2 * Math.PI);
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+
+            // 画三角形
+            // ctx.lineTo(45, 125);
+            // ctx.closePath();
+
+            //描边
             ctx.stroke();
-            ctx.fill();
-
-
-        }else{
-            console.log('什么都没做')
         }
-    
-    }
 
-    canvas.onmouseup = ()=>{
-        painting = false
-    }
-
-</script>
+        // drawLine(0, 0, 500, 500)
 
 
 
-<!-- 以下代码非常卡，理解为什么需要canvas，因为div的DOM操作很慢！ -->
-<!--
+    </script>
+
+
+
+    <!-- 以下代码非常卡，理解为什么需要canvas，因为div的DOM操作很慢！ -->
+    <!--
     <div id="canvas"></div>
     <script>
 
@@ -112,4 +192,5 @@
     </script>
 -->
 </body>
+
 </html>
