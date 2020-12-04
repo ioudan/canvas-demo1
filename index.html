@@ -7,6 +7,72 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+<!-- 
+    之前讲过，图片下面会莫名其妙的出现一个空隙 。
+    canvas是一个inline元素，可能设置宽高没有用的。类似image的东西.
+
+
+-->
+<canvas id="canvas" width="100" height="100"></canvas>
+<script>
+    //画线
+    let canvas = document.getElementById("canvas");
+
+    // body默认不会占满屏幕，body的高度是由里面的内容的高度确定的
+    // 所以一下代码做不到全屏
+    // canvas.width = document.body.clientWidth
+    // canvas.height = document.body.clientHeight
+
+    // canvas占满全屏
+    // 让canvas的宽度变成文档的宽度，高度变成文档的高度
+    canvas.width = document.documentElement.clientWidth
+    canvas.height = document.documentElement.clientHeight
+
+    let ctx = canvas.getContext("2d");
+
+    let painting = false
+
+    // ctx.fillStyle = "rgb(200,0,0)";
+    ctx.fillStyle = "black";
+    ctx.strokeStyle = "none";
+    
+    canvas.onmousedown = ()=>{
+        painting = true
+    }
+
+    // canvas.onclick = (e)=>{
+    canvas.onmousemove = (e)=>{
+        // console.log(e.clientX)
+        // console.log(e.clientY)
+
+        if(painting === true){
+            // 画矩形
+            //   让矩形生成在鼠标的中间
+            // ctx.fillRect (e.clientX - 5, e.clientY - 5, 10, 10);
+
+            ctx.beginPath();
+            // X Y 半径R 弧度
+            ctx.arc(e.clientX, e.clientY, 10, 0, 2 * Math.PI);
+            ctx.stroke();
+            ctx.fill();
+
+
+        }else{
+            console.log('什么都没做')
+        }
+    
+    }
+
+    canvas.onmouseup = ()=>{
+        painting = false
+    }
+
+</script>
+
+
+
+<!-- 以下代码非常卡，理解为什么需要canvas，因为div的DOM操作很慢！ -->
+<!--
     <div id="canvas"></div>
     <script>
 
@@ -44,5 +110,6 @@
 
         }
     </script>
+-->
 </body>
 </html>
